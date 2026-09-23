@@ -1,0 +1,77 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  verify-tag:
+    if: github.event_name == 'release'
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - uses: actions/download-artifact@v6
+        with:
+          name: distributions
+          path: dist/
+      - name: Require a release tag matching the package version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          python - <<'PY'
+          import email
+          import os
+          from pathlib import Path
+          from zipfile import ZipFile
+          wheels = list(Path('dist').glob('*.whl'))
+          assert len(wheels) == 1, 'Expected exactly one wheel'
+          with ZipFile(wheels[0]) as archive:
+              metadata_path = next(p for p in archive.namelist() if p.endswith('.dist-info/METADATA'))
+              metadata = email.message_from_bytes(archive.read(metadata_path))
+          expected = 'v' + metadata['Version']
+          assert os.environ['RELEASE_TAG'] == expected, f'Release tag must be {expected}'
+          PY
+
+  pypi:
+    if: github.event_name == 'release'
+    needs: [checks, verify-tag]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/fluxer-ext-menus
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  testpypi:
+    if: github.event_name == 'workflow_dispatch'
+    needs: checks
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/fluxer-ext-menus
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/

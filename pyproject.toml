@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fluxer-ext-menus"
+dynamic = ["version"]
+description = "Reaction-based menu helpers for fluxer.py"
+readme = "README.md"
+requires-python = ">=3.14"
+authors = [{ name = "Fer2G" }]
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = ["fluxer.py>=0.5.0a4"]
+keywords = ["fluxer", "menus", "pagination", "asyncio", "bot"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/FluxerDevs/fluxer-ext-menus"
+Repository = "https://github.com/FluxerDevs/fluxer-ext-menus"
+Issues = "https://github.com/FluxerDevs/fluxer-ext-menus/issues"
+Changelog = "https://github.com/FluxerDevs/fluxer-ext-menus/releases"
+
+[project.optional-dependencies]
+dev = ["build>=1.2", "twine>=6", "pytest>=8", "pytest-asyncio>=1", "ruff>=0.15"]
+
+[tool.setuptools.packages.find]
+include = ["fluxer.ext.menus", "fluxer.ext.menus.*"]
+namespaces = true
+
+[tool.setuptools.dynamic]
+version = { attr = "fluxer.ext.menus.__version__" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

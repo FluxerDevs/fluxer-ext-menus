@@ -1,24 +1,12 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
 
-
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "fluxer.py"))
-sys.path.insert(0, str(ROOT / "fluxer-ext-menus"))
-
-import fluxer
-import fluxer.ext
-from fluxer.models.reaction import PartialEmoji
-
-fluxer.ext.__path__.append(str(ROOT / "fluxer-ext-menus" / "fluxer" / "ext"))
-
 from fluxer.ext import menus
+from fluxer.models.reaction import PartialEmoji
 
 
 class FakeMessage:
